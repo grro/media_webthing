@@ -96,11 +96,13 @@ class Onkyo:
             self.__receiver.power_off()
 
     def set_volume(self, volume: int):
+        volume = int(volume)
         logging.info("setting volume " + str(volume))
         cmd = 'MVL' + '{:02x}'.format(volume)
         self.__receiver.send(cmd)
 
     def set_source(self, input: str):
+        input = input.strip()
         logging.info("setting source " + input)
         cmd = 'SLI' + INPUT_TO_CODE.get(input)
         self.__receiver.send(cmd)
