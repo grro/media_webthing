@@ -14,8 +14,6 @@ class Media:
         self.tuner = tuner
         self.av_receiver = av_receiver
         self.av_receiver.set_listener(self._on_receiver_updated)
-        self.set_source(self.av_receiver.DEFAULT_SOURCE)
-        self.set_volume(30)
 
     def _on_receiver_updated(self):
         if self.av_receiver.power:

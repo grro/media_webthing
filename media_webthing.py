@@ -87,7 +87,6 @@ def run_server(description: str, port: int, onkyo_address: str, subwoofer_addres
         logging.info('done')
 
 
-
 def parse_map(text: str) -> Dict[str, str]:
     result = dict()
     for part in text.split("&"):
@@ -105,5 +104,5 @@ if __name__ == '__main__':
 
 # test curl
 # curl -X PUT -d '{"volume": 33}' http://localhost:7878/properties/volume
-# curl -X PUT -d '{"source": "GAME"}' http://localhost:7878/properties/source
+# curl -X PUT -d '{"source": "TV"}' http://localhost:7878/properties/source
 # curl -X PUT -d '{"power": false}' http://localhost:7878/properties/power

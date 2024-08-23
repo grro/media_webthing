@@ -1,9 +1,7 @@
 import logging
-
 import eiscp
 from requests import Session
 from threading import Thread
-
 
 
 CODE_TO_INPUT = {'00': 'DVR',
@@ -34,10 +32,12 @@ class Onkyo:
         self.power = False
         self.source = ''
         self.volume = 0
-        self.__receiver = None
         self.__listener = lambda: None
+        self.__av_receiver = None
         self.__reconnect()
         Thread(target=self.__receive_loop, daemon=True).start()
+        self.set_source(self.DEFAULT_SOURCE)
+        self.set_volume(30)
 
     def set_listener(self, listener):
         self.__listener = listener
@@ -45,22 +45,13 @@ class Onkyo:
     def __notify_listener(self):
         self.__listener()
 
-    def __reconnect(self):
-        try:
-            self.__receiver.disconnect()
-        except Exception as e:
-            pass
-        self.__receiver = eiscp.eISCP(self.addr)
-
     def __receive_loop(self):
         while True:
-            receiver = None
             try:
-                receiver = eiscp.eISCP(self.addr)
                 while True:
                     # https://tom.webarts.ca/Blog/new-blog-items/javaeiscp-integraserialcontrolprotocolpart2
                     # https://tascam.com/downloads/tascam/790/pa-r100_200_protocol.pdf
-                    msg = self.__receiver.get(1)
+                    msg = self.__receive(1)
                     if msg is not None:
                         if msg == 'PWR01':
                             self.power = True
@@ -71,33 +62,51 @@ class Onkyo:
                         elif msg.startswith('MVL'):
                             self.volume = int(msg[3:], 16)
                         else:
-                            print("unknown msg " + msg)
+                            logging.debug("unknown msg " + msg)
                         self.__notify_listener()
             except Exception as e:
-                try:
-                    receiver.disconnect()
-                except Exception as e:
-                    pass
+                logging.error(str(e) + " occurred on receiving")
 
-    def __on_message(self, msg):
-        print(msg)
+    def __receive(self, timeout):
+        try:
+            return self.__av_receiver.get(timeout)
+        except Exception as e:
+            logging.error(str(e) + " occurred on receiving. Retrying..")
+            self.__reconnect()
+            return self.__av_receiver.get(timeout)
+
+    def __send(self, cmd):
+        try:
+            self.__av_receiver.send(cmd)
+        except Exception as e:
+            logging.error(str(e) + " occurred on sending. Retrying..")
+            self.__reconnect()
+            self.__av_receiver.send(cmd)
+
+    def __reconnect(self):
+        try:
+            if self.__av_receiver is not None:
+                self.__av_receiver.disconnect()
+        except Exception as e:
+            pass
+        self.__av_receiver = eiscp.eISCP(self.addr)
 
     def set_power(self, power: bool):
         logging.info("setting power " + str(power))
         if power:
-            self.__receiver.send('PWR01')
+            self.__send('PWR01')
         else:
-            self.__receiver.send('PWR00')
+            self.__send('PWR00')
 
     def set_volume(self, volume: int):
         volume = int(volume)
         logging.info("setting volume " + str(volume))
         cmd = 'MVL' + '{:02x}'.format(volume)
-        self.__receiver.send(cmd)
+        self.__send(cmd)
 
     def set_source(self, input: str):
         input = input.strip()
         logging.info("setting source " + input)
         cmd = 'SLI' + INPUT_TO_CODE.get(input)
-        self.__receiver.send(cmd)
+        self.__send(cmd)
 
