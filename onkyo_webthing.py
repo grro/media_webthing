@@ -20,7 +20,7 @@ class OnkyoThing(Thing):
         Thing.__init__(
             self,
             'urn:dev:ops:onkyo',
-            'Onkyo2',
+            'Onkyo',
             ['MultiLevelSensor'],
             description
         )
