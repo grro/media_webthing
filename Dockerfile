@@ -8,7 +8,7 @@ RUN mkdir app
 WORKDIR /etc/app
 ADD *.py /etc/app/
 ADD requirements.txt /etc/app/.
-RUN sudo apt-get install gcc
+RUN apt-get install gcc
 RUN pip install -r requirements.txt
 
 CMD python /etc/app/onkyo_webthing.py $port $addr
