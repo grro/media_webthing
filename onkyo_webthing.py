@@ -19,8 +19,8 @@ class OnkyoThing(Thing):
 
         Thing.__init__(
             self,
-            'urn:dev:ops:onkyo-1',
-            'Onkyo',
+            'urn:dev:ops:onkyo',
+            'Onkyo2',
             ['MultiLevelSensor'],
             description
         )
@@ -52,6 +52,18 @@ class OnkyoThing(Thing):
                          'readOnly': False,
                      }))
 
+        self.available_sources = Value(", ".join(onkyo.SOURCES))
+        self.add_property(
+            Property(self,
+                     'available_sources',
+                     self.available_sources,
+                     metadata={
+                         'title': 'available_sources',
+                         "type": "string",
+                         'description': 'the available sources as comma separated string',
+                         'readOnly': True,
+                     }))
+
 
         self.volume = Value(onkyo.volume, onkyo.set_volume)
         self.add_property(
@@ -72,6 +84,7 @@ class OnkyoThing(Thing):
     def _on_value_changed(self):
         self.power.notify_of_external_update(self.onkyo.power)
         self.source.notify_of_external_update(self.onkyo.source)
+        self.volume.notify_of_external_update(self.onkyo.volume)
 
 
 def run_server(description: str, port: int, device_address: str):

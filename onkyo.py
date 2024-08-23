@@ -25,6 +25,7 @@ INPUT_TO_CODE = {v: k for k, v in CODE_TO_INPUT.items()}
 
 
 class Onkyo:
+    SOURCES = CODE_TO_INPUT.values()
 
     def __init__(self, addr: str):
         self.__session = Session()
@@ -37,6 +38,8 @@ class Onkyo:
         self.__listener = lambda: None
         self.__reconnect()
         Thread(target=self.__receive_loop, daemon=True).start()
+        self.set_source('GAME')
+        self.set_volume(30)
 
     def set_listener(self, listener):
         self.__listener = listener
