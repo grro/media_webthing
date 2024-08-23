@@ -1,3 +1,5 @@
+import logging
+
 import eiscp
 from requests import Session
 from threading import Thread
@@ -84,15 +86,18 @@ class Onkyo:
         print(msg)
 
     def set_power(self, power: bool):
+        logging.info("setting power " + str(power))
         if power:
             self.__receiver.power_on()
         else:
             self.__receiver.power_off()
 
     def set_volume(self, volume: int):
+        logging.info("setting volume " + str(volume))
         cmd = 'MVL' + '{:02x}'.format(volume)
         self.__receiver.send(cmd)
 
     def set_source(self, input: str):
+        logging.info("setting source " + input)
         cmd = 'SLI' + INPUT_TO_CODE.get(input)
         self.__receiver.send(cmd)
