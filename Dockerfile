@@ -10,7 +10,7 @@ ADD *.py /etc/app/
 ADD requirements.txt /etc/app/.
 RUN pip install -r requirements.txt
 
-CMD python /etc/app/onkyo_webthing.py $port $addr
+CMD python /etc/app/media_webthing.py $port $addr
 
 
 

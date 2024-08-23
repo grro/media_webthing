@@ -26,20 +26,18 @@ INPUT_TO_CODE = {v: k for k, v in CODE_TO_INPUT.items()}
 
 class Onkyo:
     SOURCES = CODE_TO_INPUT.values()
+    DEFAULT_SOURCE = 'TV'
 
     def __init__(self, addr: str):
         self.__session = Session()
         self.addr = addr
         self.power = False
         self.source = ''
-        self.mute = False
         self.volume = 0
         self.__receiver = None
         self.__listener = lambda: None
         self.__reconnect()
         Thread(target=self.__receive_loop, daemon=True).start()
-        self.set_source('GAME')
-        self.set_volume(30)
 
     def set_listener(self, listener):
         self.__listener = listener
@@ -68,10 +66,6 @@ class Onkyo:
                             self.power = True
                         elif msg == 'PWR00':
                             self.power = False
-                        elif msg == 'AMT00':
-                            self.mute = False
-                        elif msg == 'AMT01':
-                            self.mute = True
                         elif msg.startswith('SLI'):
                             self.source = CODE_TO_INPUT.get(msg[3:], msg[3:])
                         elif msg.startswith('MVL'):
@@ -91,9 +85,9 @@ class Onkyo:
     def set_power(self, power: bool):
         logging.info("setting power " + str(power))
         if power:
-            self.__receiver.power_on()
+            self.__receiver.send('PWR01')
         else:
-            self.__receiver.power_off()
+            self.__receiver.send('PWR00')
 
     def set_volume(self, volume: int):
         volume = int(volume)
@@ -106,3 +100,4 @@ class Onkyo:
         logging.info("setting source " + input)
         cmd = 'SLI' + INPUT_TO_CODE.get(input)
         self.__receiver.send(cmd)
+
