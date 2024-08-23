@@ -59,9 +59,9 @@ class Media:
             return ""
 
     def set_source(self, source: str):
-        if source in self.av_receiver.SOURCES:
+        if source.upper() in self.av_receiver.SOURCES:
             self.av_receiver.set_source(source)
-        elif source == 'OFF':
+        elif source.upper() == 'OFF':
             self.set_power(False)
         else:
             station = source
