@@ -53,11 +53,11 @@ class Media:
     @property
     def source(self) -> str:
         if self.av_receiver.power:
-            source = self.av_receiver.source
-            if source.upper() == self.TUNER_SOURCE.upper():
+            src = self.av_receiver.source
+            if src.upper() == self.TUNER_SOURCE.upper():
                 return self.tuner.stationname
             else:
-                return source
+                return src
         else:
             return ""
 
@@ -74,7 +74,7 @@ class Media:
 
     @property
     def title(self) -> str:
-        if self.source.upper() == self.TUNER_SOURCE.upper():
+        if self.av_receiver.source.upper() == self.TUNER_SOURCE.upper():
             return self.tuner.title
         else:
             return self.source
