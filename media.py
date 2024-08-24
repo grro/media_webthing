@@ -69,3 +69,7 @@ class Media:
             self.av_receiver.set_source("GAME")
             self.tuner.play(station)
         self.__notify_listener()
+
+    @property
+    def title(self) -> str:
+        return self.tuner.title
