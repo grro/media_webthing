@@ -38,6 +38,7 @@ class Onkyo:
         Thread(target=self.__receive_loop, daemon=True).start()
         self.set_source(self.DEFAULT_SOURCE)
         self.set_volume(30)
+        self.set_power(False)
 
     def set_listener(self, listener):
         self.__listener = listener
