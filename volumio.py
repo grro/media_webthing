@@ -9,6 +9,8 @@ from time import sleep
 
 class Volumio:
 
+    MAX_TITLE_LENGTH = 26
+
     def __init__(self, volumio_uri: str, stations: Dict[str, str]):
         self.volumio_uri = volumio_uri
         self.__stations = stations
@@ -51,8 +53,8 @@ class Volumio:
                 if response.status_code == 200:
                     data = response.json()
                     title = data.get('title', "")
-                    if len(title) > 25:
-                        title = title[:25] + "..."
+                    if len(title) > self.MAX_TITLE_LENGTH:
+                        title = title[:self.MAX_TITLE_LENGTH-3] + "..."
                     if title != self.title:
                         self.title = title
                         self.__notify_listener()
