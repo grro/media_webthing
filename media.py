@@ -5,8 +5,10 @@ from subwoofer import Subwoofer
 
 
 
-
 class Media:
+
+    TUNER_SOURCE = 'GAME'
+    OFF = 'OFF'
 
     def __init__(self, av_receiver: Onkyo, tuner: Volumio, subwoofer: Subwoofer):
         self.__listener = lambda: None
@@ -52,7 +54,7 @@ class Media:
     def source(self) -> str:
         if self.av_receiver.power:
             source = self.av_receiver.source
-            if source == 'GAME':
+            if source.upper() == self.TUNER_SOURCE.upper():
                 return self.tuner.stationname
             else:
                 return source
@@ -62,14 +64,17 @@ class Media:
     def set_source(self, source: str):
         if source.upper() in self.av_receiver.SOURCES:
             self.av_receiver.set_source(source)
-        elif source.upper() == 'OFF':
+        elif source.upper() == self.OFF.upper():
             self.set_power(False)
         else:
             station = source
-            self.av_receiver.set_source("GAME")
+            self.av_receiver.set_source(self.TUNER_SOURCE)
             self.tuner.play(station)
         self.__notify_listener()
 
     @property
     def title(self) -> str:
-        return self.tuner.title
+        if self.source.upper() == self.TUNER_SOURCE.upper():
+            return self.tuner.title
+        else:
+            return self.source
