@@ -64,9 +64,15 @@ class Subwoofer:
     def __init__(self, address: str):
         self.switch = Shelly1(address)
 
+    @property
+    def power(self) -> bool:
+        on, power = self.switch.query()
+        return on
+
     def set_power(self, power: bool):
-        self.switch.switch(power)
-        if power:
-            logging.info("subwoofer on")
-        else:
-            logging.info("subwoofer off")
+        if self.power != power:
+            self.switch.switch(power)
+            if power:
+                logging.info("subwoofer on")
+            else:
+                logging.info("subwoofer off")
