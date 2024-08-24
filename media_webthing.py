@@ -53,11 +53,11 @@ class MediaThing(Thing):
                          'readOnly': False,
                      }))
 
-        self.title = Value(media.title)
+        self.status = Value(media.title)
         self.add_property(
             Property(self,
                      'title',
-                     self.title,
+                     self.status,
                      metadata={
                          'title': 'title',
                          "type": "string",
@@ -85,7 +85,7 @@ class MediaThing(Thing):
         self.power.notify_of_external_update(self.media.power)
         self.source.notify_of_external_update(self.media.source)
         self.volume.notify_of_external_update(self.media.volume)
-        self.title.notify_of_external_update(self.media.title)
+        self.status.notify_of_external_update(self.media.title)
 
 
 def run_server(description: str, port: int, onkyo_address: str, subwoofer_address: str, volumio_address: str, stations: Dict[str, str]):

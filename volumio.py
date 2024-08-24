@@ -12,6 +12,8 @@ class Volumio:
     MAX_TITLE_LENGTH = 26
 
     def __init__(self, volumio_uri: str, stations: Dict[str, str]):
+        if volumio_uri.endswith("/"):
+            volumio_uri = volumio_uri[:-1]
         self.volumio_uri = volumio_uri
         self.__stations = stations
         self.station_names = self.__stations.keys()

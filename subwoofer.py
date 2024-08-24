@@ -4,7 +4,7 @@ import logging
 
 
 
-class Shelly1:
+class ShellyPlus1:
 
     def __init__(self, addr: str):
         self.__session = Session()
@@ -14,7 +14,7 @@ class Shelly1:
         self.__session.close()
 
     def supports(self) -> bool:
-        uri = self.addr + '/status'
+        uri = self.addr + '/rpc/Switch.GetStatus?id=0'
         try:
             resp = self.__session.get(uri, timeout=10)
             return resp.status_code == 200
@@ -23,13 +23,13 @@ class Shelly1:
             raise e
 
     def query(self) -> Tuple[bool, int]:
-        uri = self.addr + '/status'
+        uri = self.addr + '/rpc/Switch.GetStatus?id=0'
         try:
             resp = self.__session.get(uri, timeout=10)
             try:
                 data = resp.json()
-                on = data['relays'][0]['ison']
-                power = data['meters'][0]['power']
+                on = data['output']
+                power = 0
                 return on, power
             except Exception as e:
                 raise Exception("called " + uri + " got " + str(resp.status_code) + " " + resp.text + " " + str(e))
@@ -37,13 +37,11 @@ class Shelly1:
             self.__renew_session()
             raise e
 
-    def switch(self, on: bool) -> bool:
-        uri = self.addr + '/relay/0?turn=' + ('on' if on else 'off')
+    def switch(self, on: bool):
+        uri = self.addr + '/rpc/Switch.Set?id=0&on=' + ('true' if on else 'false')
         try:
             resp = self.__session.get(uri, timeout=10)
-            if resp.status_code == 200:
-                return True
-            else:
+            if resp.status_code != 200:
                 raise Exception("called " + uri + " got " + str(resp.status_code) + " " + resp.text)
         except Exception as e:
             self.__renew_session()
@@ -62,7 +60,9 @@ class Shelly1:
 class Subwoofer:
 
     def __init__(self, address: str):
-        self.switch = Shelly1(address)
+        if address.endswith("/"):
+            address = address[:-1]
+        self.switch = ShellyPlus1(address)
 
     @property
     def power(self) -> bool:
