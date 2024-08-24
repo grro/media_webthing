@@ -37,11 +37,13 @@ class Shelly1:
             self.__renew_session()
             raise e
 
-    def switch(self, on: bool):
+    def switch(self, on: bool) -> bool:
         uri = self.addr + '/relay/0?turn=' + ('on' if on else 'off')
         try:
             resp = self.__session.get(uri, timeout=10)
-            if resp.status_code != 200:
+            if resp.status_code == 200:
+                return True
+            else:
                 raise Exception("called " + uri + " got " + str(resp.status_code) + " " + resp.text)
         except Exception as e:
             self.__renew_session()
@@ -64,3 +66,7 @@ class Subwoofer:
 
     def set_power(self, power: bool):
         self.switch.switch(power)
+        if power:
+            logging.info("subwoofer on")
+        else:
+            logging.info("subwoofer off")
