@@ -9,7 +9,7 @@ from time import sleep
 
 class Volumio:
 
-    MAX_TITLE_LENGTH = 26
+    MAX_TITLE_LENGTH = 30
 
     def __init__(self, volumio_uri: str, stations: Dict[str, str]):
         if volumio_uri.endswith("/"):
@@ -29,7 +29,7 @@ class Volumio:
         self.__listener()
 
     def play(self, stationname: str):
-        self.title = 'loading ' + stationname
+        self.title = 'loading ' + stationname + "..."
         self.stationname = stationname
         data = json.dumps({"service": "webradio", "type": "webradio", "title": stationname, "uri": self.__stations.get(stationname.lower())})
         response = requests.post(self.volumio_uri + '/api/v1/replaceAndPlay', data=data, headers={'Content-Type': 'application/json'}, timeout=15)
