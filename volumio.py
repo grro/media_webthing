@@ -31,10 +31,11 @@ class Volumio:
     def play(self, stationname: str):
         self.title = 'loading ' + stationname + "..."
         self.stationname = stationname
-        data = json.dumps({"service": "webradio", "type": "webradio", "title": stationname, "uri": self.__stations.get(stationname.lower())})
+        uri = self.__stations.get(stationname.lower())
+        data = json.dumps({"service": "webradio", "type": "webradio", "title": stationname, "uri": uri})
         response = requests.post(self.volumio_uri + '/api/v1/replaceAndPlay', data=data, headers={'Content-Type': 'application/json'}, timeout=15)
         if response.status_code == 200:
-            logging.info("playing "+ stationname)
+            logging.info("playing "+ stationname + " (" + uri + ")")
         else:
             logging.warning("could not set favourite_station to " + stationname + " " + response.text)
         self.__notify_listener()
