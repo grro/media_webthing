@@ -15,7 +15,14 @@ class Volumio:
         self.station_names = self.__stations.keys()
         self.stationname = ""
         self.title = ""
+        self.__listener = lambda: None
         Thread(target=self.__update_state_loop, daemon=True).start()
+
+    def set_listener(self, listener):
+        self.__listener = listener
+
+    def __notify_listener(self):
+        self.__listener()
 
     def play(self, stationname: str):
         self.title = 'loading ' + stationname
@@ -24,11 +31,13 @@ class Volumio:
         if response.status_code != 200:
             logging.warning("could not set favourite_station to " + stationname + " " + response.text)
         self.stationname = stationname
+        self.__notify_listener()
 
     def stop(self):
         response = requests.get(self.volumio_uri + '/api/v1/commands/?cmd=stop', timeout=15)
         if response.status_code != 200:
             logging.warning("could not set playing to  = false " + response.text)
+        self.__notify_listener()
 
     def __update_state_loop(self):
         self.title = ''
@@ -40,7 +49,9 @@ class Volumio:
                     title = data.get('title', "")
                     if len(title) > 25:
                         title = title[:25] + "..."
-                    self.title = title
+                    if title != self.title:
+                        self.title = title
+                        self.__notify_listener()
             except Exception as e:
                 logging.warning(str(e))
             sleep(7)

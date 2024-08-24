@@ -12,6 +12,7 @@ class Media:
         self.__listener = lambda: None
         self.subwoofer = subwoofer
         self.tuner = tuner
+        self.tuner.set_listener(self.__notify_listener)
         self.av_receiver = av_receiver
         self.av_receiver.set_listener(self._on_receiver_updated)
 
