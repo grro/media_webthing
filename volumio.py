@@ -37,7 +37,10 @@ class Volumio:
                 response = requests.get(self.volumio_uri + '/api/v1/getState', timeout=15)
                 if response.status_code == 200:
                     data = response.json()
-                    self.title = data.get('title', "")
+                    title = data.get('title', "")
+                    if len(title) > 25:
+                        title = title[:25] + "..."
+                    self.title = title
             except Exception as e:
                 logging.warning(str(e))
             sleep(7)
