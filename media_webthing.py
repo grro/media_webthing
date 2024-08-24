@@ -21,13 +21,13 @@ class MediaThing(Thing):
         Thing.__init__(
             self,
             'urn:dev:ops:media',
-            'Media',
+            'Media2',
             ['MultiLevelSensor'],
             description
         )
         self.ioloop = tornado.ioloop.IOLoop.current()
         self.media = media
-        self.media.set_listener(self._on_value_changed)
+        self.media.set_listener(self.on_value_changed)
 
         self.power = Value(media.power, media.set_power)
         self.add_property(
@@ -79,9 +79,9 @@ class MediaThing(Thing):
 
 
     def on_value_changed(self):
-        self.ioloop.add_callback(self._on_value_changed)
+        self.ioloop.add_callback(self.__on_value_changed)
 
-    def _on_value_changed(self):
+    def __on_value_changed(self):
         self.power.notify_of_external_update(self.media.power)
         self.source.notify_of_external_update(self.media.source)
         self.volume.notify_of_external_update(self.media.volume)
