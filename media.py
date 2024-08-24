@@ -14,11 +14,11 @@ class Media:
         self.__listener = lambda: None
         self.subwoofer = subwoofer
         self.tuner = tuner
-        self.tuner.set_listener(self.__notify_listener)
+        self.tuner.set_listener(self._on_updated)
         self.av_receiver = av_receiver
-        self.av_receiver.set_listener(self._on_receiver_updated)
+        self.av_receiver.set_listener(self._on_updated)
 
-    def _on_receiver_updated(self):
+    def _on_updated(self):
         if self.av_receiver.power:
             self.subwoofer.set_power(True)
         else:
