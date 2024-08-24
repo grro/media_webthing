@@ -49,7 +49,6 @@ class Volumio:
         self.__notify_listener()
 
     def __update_state_loop(self):
-        self.title = ''
         while True:
             try:
                 response = requests.get(self.volumio_uri + '/api/v1/getState', timeout=15)
