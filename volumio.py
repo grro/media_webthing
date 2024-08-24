@@ -28,14 +28,18 @@ class Volumio:
         self.title = 'loading ' + stationname
         data = json.dumps({"service": "webradio", "type": "webradio", "title": stationname, "uri": self.__stations.get(stationname.lower())})
         response = requests.post(self.volumio_uri + '/api/v1/replaceAndPlay', data=data, headers={'Content-Type': 'application/json'}, timeout=15)
-        if response.status_code != 200:
+        if response.status_code == 200:
+            logging.info("playing "+ stationname)
+        else:
             logging.warning("could not set favourite_station to " + stationname + " " + response.text)
         self.stationname = stationname
         self.__notify_listener()
 
     def stop(self):
         response = requests.get(self.volumio_uri + '/api/v1/commands/?cmd=stop', timeout=15)
-        if response.status_code != 200:
+        if response.status_code == 200:
+            logging.info("stopping")
+        else:
             logging.warning("could not set playing to  = false " + response.text)
         self.__notify_listener()
 
