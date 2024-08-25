@@ -73,6 +73,6 @@ class Subwoofer:
         if self.power != power:
             self.switch.switch(power)
             if power:
-                logging.info("subwoofer on")
+                logging.info("setting subwoofer on")
             else:
-                logging.info("subwoofer off")
+                logging.info("setting subwoofer off")
