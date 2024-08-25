@@ -16,7 +16,7 @@ class Volumio:
             volumio_uri = volumio_uri[:-1]
         self.volumio_uri = volumio_uri
         self.__stations = stations
-        self.station_names = [name.lower() for name in self.__stations.keys()]
+        self.station_names = [name.strip().upper() for name in self.__stations.keys()]
         self.stationname = ""
         self.title = ""
         self.__listener = lambda: None
@@ -30,7 +30,7 @@ class Volumio:
 
     def play(self, stationname: str):
         self.title = 'loading ' + stationname + "..."
-        uri = self.__stations.get(stationname.lower(), '')
+        uri = self.__stations.get(stationname.upper(), '')
         if uri == '':
             logging.warning("unknown station " + stationname + ". supported: " + ", ".join(self.station_names))
         else:
