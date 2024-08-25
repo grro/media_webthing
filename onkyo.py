@@ -30,14 +30,12 @@ class Onkyo:
         self.__session = Session()
         self.addr = addr
         self.power = False
-        self.source = ''
-        self.volume = 0
+        self.source = self.DEFAULT_SOURCE
+        self.volume = 30
         self.__listener = lambda: None
         self.__av_receiver = None
         self.__reconnect()
         Thread(target=self.__receive_loop, daemon=True).start()
-        self.set_source(self.DEFAULT_SOURCE)
-        self.set_volume(30)
         self.set_power(False)
 
     def set_listener(self, listener):
