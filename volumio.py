@@ -16,7 +16,7 @@ class Volumio:
             volumio_uri = volumio_uri[:-1]
         self.volumio_uri = volumio_uri
         self.__stations = stations
-        self.station_names = self.__stations.keys()
+        self.station_names = [name.lower() for name in self.__stations.keys()]
         self.stationname = ""
         self.title = ""
         self.__listener = lambda: None
@@ -30,14 +30,16 @@ class Volumio:
 
     def play(self, stationname: str):
         self.title = 'loading ' + stationname + "..."
-        self.stationname = stationname
-        uri = self.__stations.get(stationname.lower())
-        data = json.dumps({"service": "webradio", "type": "webradio", "title": stationname, "uri": uri})
-        response = requests.post(self.volumio_uri + '/api/v1/replaceAndPlay', data=data, headers={'Content-Type': 'application/json'}, timeout=15)
-        if response.status_code == 200:
-            logging.info("playing "+ stationname + " (" + uri + ")")
+        uri = self.__stations.get(stationname.lower(), '')
+        if uri == '':
+            logging.warning("unknown station " + stationname + ". supported: " + ", ".join(self.station_names))
         else:
-            logging.warning("could not set favourite_station to " + stationname + " " + response.text)
+            logging.info("playing "+ stationname + " (" + uri + ")")
+            self.stationname = stationname
+            data = json.dumps({"service": "webradio", "type": "webradio", "title": stationname, "uri": uri})
+            response = requests.post(self.volumio_uri + '/api/v1/replaceAndPlay', data=data, headers={'Content-Type': 'application/json'}, timeout=15)
+            if response.status_code != 200:
+                logging.warning("could not set favourite_station to " + stationname + " " + response.text)
         self.__notify_listener()
 
     def stop(self):
