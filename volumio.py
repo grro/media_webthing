@@ -15,8 +15,9 @@ class Volumio:
         if volumio_uri.endswith("/"):
             volumio_uri = volumio_uri[:-1]
         self.volumio_uri = volumio_uri
-        self.__stations = stations
-        self.station_names = [name.strip().upper() for name in self.__stations.keys()]
+        self.__stations = {name.strip().upper(): stations.get(name) for name in stations.keys()}
+        self.station_names = list(self.__stations)
+        logging.info("Supported stations " + ", ".join([ "'" + name + "'='" + self.__stations.get(name) + "'" for name in self.station_names]))
         self.stationname = ""
         self.title = ""
         self.__listener = lambda: None
