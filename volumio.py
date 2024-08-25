@@ -9,7 +9,7 @@ from time import sleep
 
 class Volumio:
 
-    MAX_TITLE_LENGTH = 30
+    MAX_TITLE_LENGTH = 35
 
     def __init__(self, volumio_uri: str, stations: Dict[str, str]):
         if volumio_uri.endswith("/"):
