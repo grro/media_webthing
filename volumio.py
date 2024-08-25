@@ -34,7 +34,7 @@ class Volumio:
         self.title = 'loading ' + stationname + "..."
         uri = self.__stations.get(stationname, '')
         if uri == '':
-            logging.warning("unknown station '" + stationname + "'. supported: " + ", ".join(["'" + name + "'" for name in self.station_names]))
+            logging.warning("unknown station '" + stationname + "' (supported: " + ", ".join(["'" + name + "'" for name in self.station_names]) + ")")
         else:
             logging.info("playing "+ stationname + " (" + uri + ")")
             self.stationname = stationname
