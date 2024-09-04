@@ -36,7 +36,6 @@ class Onkyo:
         self.__av_receiver = None
         self.__reconnect()
         Thread(target=self.__receive_loop, daemon=True).start()
-        self.set_power(False)
 
     def set_listener(self, listener):
         self.__listener = listener
@@ -52,6 +51,7 @@ class Onkyo:
                     # https://tascam.com/downloads/tascam/790/pa-r100_200_protocol.pdf
                     msg = self.__receive(1)
                     if msg is not None:
+                        logging.info(msg)
                         if msg == 'PWR01':
                             self.power = True
                         elif msg == 'PWR00':
