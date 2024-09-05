@@ -2,6 +2,7 @@ import logging
 import eiscp
 from requests import Session
 from threading import Thread
+from time import sleep
 
 
 CODE_TO_INPUT = {'00': 'DVR',
@@ -36,6 +37,7 @@ class Onkyo:
         self.__av_receiver = None
         self.__reconnect()
         Thread(target=self.__receive_loop, daemon=True).start()
+        Thread(target=self.__power_request_loop, daemon=True).start()
 
     def set_listener(self, listener):
         self.__listener = listener
@@ -43,10 +45,18 @@ class Onkyo:
     def __notify_listener(self):
         self.__listener()
 
-    def __receive_loop(self):
+    def __power_request_loop(self):
+        sleep(2)
         while True:
             try:
                 self.__send('PWRQSTN')
+                sleep(5 * 60)
+            except Exception as e:
+                logging.error(str(e) + " occurred on power requesting")
+
+    def __receive_loop(self):
+        while True:
+            try:
                 while True:
                     # https://tom.webarts.ca/Blog/new-blog-items/javaeiscp-integraserialcontrolprotocolpart2
                     # https://tascam.com/downloads/tascam/790/pa-r100_200_protocol.pdf
