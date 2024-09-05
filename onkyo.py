@@ -46,12 +46,13 @@ class Onkyo:
     def __receive_loop(self):
         while True:
             try:
+                self.__send('PWRQSTN')
                 while True:
                     # https://tom.webarts.ca/Blog/new-blog-items/javaeiscp-integraserialcontrolprotocolpart2
                     # https://tascam.com/downloads/tascam/790/pa-r100_200_protocol.pdf
                     msg = self.__receive(1)
                     if msg is not None:
-                        logging.info(msg)
+                        logging.info("received: " + str(msg))
                         if msg == 'PWR01':
                             self.power = True
                         elif msg == 'PWR00':
@@ -75,6 +76,7 @@ class Onkyo:
             return self.__av_receiver.get(timeout)
 
     def __send(self, cmd):
+        logging.info("sending: " + str(cmd))
         try:
             self.__av_receiver.send(cmd)
         except Exception as e:
