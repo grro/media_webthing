@@ -104,6 +104,7 @@ class Onkyo:
 
     def set_power(self, power: bool):
         logging.info("setting power " + str(power))
+        self.power = power
         if power:
             self.__send('PWR01')
         else:
@@ -112,12 +113,14 @@ class Onkyo:
     def set_volume(self, volume: int):
         volume = int(volume)
         logging.info("setting volume " + str(volume))
+        self.volume = volume
         cmd = 'MVL' + '{:02x}'.format(volume)
         self.__send(cmd)
 
     def set_source(self, input: str):
         input = input.strip()
         logging.info("setting source " + input)
+        self.source = input
         cmd = 'SLI' + INPUT_TO_CODE.get(input)
         self.__send(cmd)
 

@@ -21,7 +21,7 @@ class MediaThing(Thing):
         Thing.__init__(
             self,
             'urn:dev:ops:media',
-            'Media2',
+            'Media',
             ['MultiLevelSensor'],
             description
         )
