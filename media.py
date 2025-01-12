@@ -1,4 +1,4 @@
-from onkyo import Onkyo
+from denon import Denon
 from volumio import Volumio
 from subwoofer import Subwoofer
 
@@ -7,16 +7,16 @@ from subwoofer import Subwoofer
 
 class Media:
 
-    TUNER_SOURCE = 'GAME'
-    OFF = 'OFF'
-
-    def __init__(self, av_receiver: Onkyo, tuner: Volumio, subwoofer: Subwoofer):
+    def __init__(self, av_receiver: Denon, tuner: Volumio, subwoofer: Subwoofer):
         self.__listener = lambda: None
         self.subwoofer = subwoofer
         self.tuner = tuner
         self.tuner.set_listener(self._on_updated)
         self.av_receiver = av_receiver
         self.av_receiver.set_listener(self._on_updated)
+
+    def stop(self):
+        self.av_receiver.stop()
 
     def _on_updated(self):
         if self.av_receiver.power:
@@ -37,7 +37,7 @@ class Media:
 
     def set_power(self, power: bool):
         if not power:
-            self.av_receiver.set_source(self.av_receiver.DEFAULT_SOURCE)
+            self.av_receiver.set_source('TV')
             self.tuner.stop()
         self.av_receiver.set_power(power)
         self.__notify_listener()
@@ -51,10 +51,20 @@ class Media:
         self.__notify_listener()
 
     @property
+    def title(self) -> str:
+        if self.av_receiver.power:
+            if self.av_receiver.source.upper() == 'RADIO':
+                return self.tuner.title
+            else:
+                return self.source
+        else:
+            return ""
+
+    @property
     def source(self) -> str:
         if self.av_receiver.power:
             src = self.av_receiver.source
-            if src.upper() == self.TUNER_SOURCE.upper():
+            if src.upper() == 'RADIO':
                 return self.tuner.stationname
             else:
                 return src
@@ -62,19 +72,13 @@ class Media:
             return ""
 
     def set_source(self, source: str):
-        if source.upper() in self.av_receiver.SOURCES:
-            self.av_receiver.set_source(source)
-        elif source.upper() == self.OFF.upper():
+        if source.upper() == 'OFF':
             self.set_power(False)
+        elif source.upper() in {'TV', 'SAT', 'MEDIAPLAYER', 'BLUERAY', 'AUX2', 'TUNER', 'HEOS'}:
+            self.av_receiver.set_source(source)
         else:
             station = source
-            self.av_receiver.set_source(self.TUNER_SOURCE)
+            self.av_receiver.set_source('RADIO')
             self.tuner.play(station)
         self.__notify_listener()
 
-    @property
-    def title(self) -> str:
-        if self.av_receiver.source.upper() == self.TUNER_SOURCE.upper():
-            return self.tuner.title
-        else:
-            return self.source

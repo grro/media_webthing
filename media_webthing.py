@@ -4,7 +4,7 @@ import tornado.ioloop
 from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
 from media import Media
 from volumio import Volumio
-from onkyo import Onkyo
+from denon import Denon
 from subwoofer import Subwoofer
 from typing import Dict
 
@@ -88,15 +88,16 @@ class MediaThing(Thing):
         self.status.notify_of_external_update(self.media.title)
 
 
-def run_server(description: str, port: int, onkyo_address: str, subwoofer_address: str, volumio_address: str, stations: Dict[str, str]):
-    onkyo = Media(Onkyo(onkyo_address), Volumio(volumio_address, stations), Subwoofer(subwoofer_address))
-    server = WebThingServer(SingleThing(MediaThing(description, onkyo)), port=port, disable_host_validation=True)
+def run_server(description: str, port: int, avreceiver_address: str, subwoofer_address: str, volumio_address: str, stations: Dict[str, str]):
+    media = Media(Denon(avreceiver_address), Volumio(volumio_address, stations), Subwoofer(subwoofer_address))
+    server = WebThingServer(SingleThing(MediaThing(description, media)), port=port, disable_host_validation=True)
     try:
-        logging.info('starting the server http://localhost:' + str(port) + " (onkyo device=" + onkyo_address + "; subwoofer address=" + subwoofer_address + "; volumio device= " + volumio_address + ")")
+        logging.info('starting the server http://localhost:' + str(port) + " (av receiver=" + avreceiver_address + "; subwoofer address=" + subwoofer_address + "; volumio device= " + volumio_address + ")")
         server.start()
     except KeyboardInterrupt:
         logging.info('stopping the server')
         server.stop()
+        media.stop()
         logging.info('done')
 
 
