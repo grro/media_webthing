@@ -1,5 +1,5 @@
 requests>=2.32.0
 redzoo>=0.3.7
 webthing>=0.15.0
-onkyo-eiscp==1.2.7
-denonavr>=1.0.1
+xmltodict>=0.14.2
+

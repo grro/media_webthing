@@ -1,24 +1,20 @@
 import logging
-import asyncio
+import  requests
 from time import sleep
+import xmltodict
 from threading import Thread
-from denonavr import DenonAVR
 
 
 class Denon:
 
-    def __init__(self, ip_addr: str):
-        self.ip_addr = ip_addr
-        self.receiver = DenonAVR(ip_addr)
+    def __init__(self, addr: str):
+        self.addr = addr
         self.__listener = lambda: None
         self.running = True
         self.__pwr = "?"
         self.__vol = -1
         self.__src = '?'
-        Thread(target=self.__start, daemon=True).start()
-
-    def __start(self):
-        asyncio.run(self.__listen())
+        Thread(target=self.__listen, daemon=True).start()
 
     def stop(self):
         self.running = False
@@ -29,67 +25,50 @@ class Denon:
     def __notify_listener(self):
         self.__listener()
 
-    async def __listen(self):
-        await self.receiver.async_setup()
-        await self.receiver.async_update()
+    def __listen(self):
+        self.__fetch_state()
         while self.running:
-            sleep(5)
-            await self.receiver.async_update()
-            self.__refresh()
+            sleep(2)
+            self.__fetch_state()
 
-    def __refresh(self):
+    def __fetch_state(self):
+        content = '''<?xml version="1.0" encoding="utf-8"?>
+                     <tx>
+                      <cmd id="1">GetAllZonePowerStatus</cmd>
+                      <cmd id="1">GetAllZoneVolume</cmd>
+                      <cmd id="1">GetAllZoneSource</cmd>
+                     </tx>'''
+        resp = requests.post(self.addr + ":8080/goform/AppCommand.xml", headers={'Content-Type': 'application/xml', 'Accept': 'application/xml'},data=content)
+        resp.raise_for_status()
+
         updated = False
-        if self.__pwr != self.receiver.power:
-            self.__pwr = self.receiver.power
+        current_power = xmltodict.parse(resp.text)['rx']['cmd'][0]['zone1']
+        if self.__pwr != current_power:
+            self.__pwr = current_power
             updated = True
-        if self.__vol != self.receiver.volume:
-            self.__vol = self.receiver.volume
+        current_volume = float(xmltodict.parse(resp.text)['rx']['cmd'][1]['zone1']['volume'])
+        if self.__vol != current_volume:
+            self.__vol = current_volume
             updated = True
-        if self.__src != self.receiver.input_func:
-            self.__src = self.receiver.input_func
+        current_source = xmltodict.parse(resp.text)['rx']['cmd'][2]['zone1']['source']
+        if self.__src != current_source:
+            self.__src = current_source
             updated = True
         if updated:
             self.__notify_listener()
-            logging.debug(self.__str__())
+            logging.info(self.__str__() + "\n")
 
     @property
     def power(self) -> bool:
         return self.__pwr == 'ON'   # "ON", "STANDBY" or "OFF"
 
-    def set_power(self, power: bool):
-        if power:
-            asyncio.run(self.async_power_on())
-        else:
-            asyncio.run(self.async_power_off())
-
-    async def async_power_on(self):
-        logging.info("setting power ON")
-        await self.receiver.async_power_on()
-        await self.receiver.async_update()
-        self.__refresh()
-
-    async def async_power_off(self):
-        logging.info("setting power OFF")
-        await self.receiver.async_power_off()
-        await self.receiver.async_update()
-        self.__refresh()
-
     @property
     def volume(self) -> int:
         return 80 + self.__vol
 
-    def set_volume(self, volume: int):
-        asyncio.run(self.async_set_volume(volume - 80))
-
-    async def async_set_volume(self, volume: float):
-        logging.info("setting volume " + str(volume))
-        await self.receiver.async_set_volume(volume)
-        await self.receiver.async_update()
-        self.__refresh()
-
     @property
     def source(self) -> str:
-        if self.__src == 'TV Audio':
+        if self.__src == 'TV':
             return 'TV'
         elif self.__src == 'CBL/SAT':
             return 'SAT'
@@ -99,6 +78,8 @@ class Denon:
             return 'BLUERAY'
         elif self.__src == 'Videocore':
             return 'RADIO'
+        elif self.__src == 'GAME1':
+            return 'GAME1'
         elif self.__src == 'Aux2':
             return 'AUX2'
         elif self.__src == 'Tuner':
@@ -109,18 +90,38 @@ class Denon:
             logging.warning("unknown source: " + self.__src)
             return 'TV'
 
+    def set_power(self, power: bool):
+        content = '''<?xml version="1.0" encoding="utf-8"?>
+                             <tx>
+                               <cmd id="1">SetPower</cmd>
+                               <zone>zone1</zone>
+                               <value>''' + ('ON' if power else 'STANDBY') + '''</value>
+                             </tx>'''
+        resp = requests.post(self.addr + ":8080/goform/AppCommand.xml", headers={'Content-Type': 'application/xml', 'Accept': 'application/xml'},data=content)
+        resp.raise_for_status()
+        self.__fetch_state()
+
+    def set_volume(self, volume: int):
+        vol = volume - 80
+        resp = requests.get(self.addr + ":8080/goform/formiPhoneAppVolume.xml?1+" + str(vol))
+        resp.raise_for_status()
+        self.__fetch_state()
+
     def set_source(self, src: str):
         if src == 'TV':
-            src = 'TV Audio'
+            src = 'TV'
         elif src == 'RADIO':
-            src = 'Videocore'
-        asyncio.run(self.async_set_source(src))
+            src = 'GAME1'
 
-    async def async_set_source(self, input: str):
-        logging.info("setting source " + input)
-        await self.receiver.async_set_input_func(input)
-        await self.receiver.async_update()
-        self.__refresh()
+        content = '''<?xml version="1.0" encoding="utf-8"?>
+                                     <tx>
+                                       <cmd id="1">SetInputFunction</cmd>
+                                       <zone>zone1</zone>
+                                       <value>''' + src + '''</value>
+                                     </tx>'''
+        resp = requests.post(self.addr + ":8080/goform/AppCommand.xml", headers={'Content-Type': 'application/xml', 'Accept': 'application/xml'},data=content)
+        resp.raise_for_status()
+        self.__fetch_state()
 
     def __repr__(self):
         return self.__str__()

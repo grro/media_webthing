@@ -46,7 +46,7 @@ class Media:
     def volume(self) -> int:
         return self.av_receiver.volume
 
-    def set_volume(self, volume: int):
+    async def set_volume(self, volume: int):
         self.av_receiver.set_volume(volume)
         self.__notify_listener()
 
