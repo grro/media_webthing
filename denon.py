@@ -12,9 +12,9 @@ class Denon:
         self.receiver = DenonAVR(ip_addr)
         self.__listener = lambda: None
         self.running = True
-        self.__pwr = None
-        self.__vol = None
-        self.__src = None
+        self.__pwr = "?"
+        self.__vol = -1
+        self.__src = '?'
         Thread(target=self.__start, daemon=True).start()
 
     def __start(self):

@@ -1,9 +1,9 @@
 FROM python:3
 
-ENV port 8343
-ENV avreceiver_address 192.145.5.55
-ENV subwoofer_address 192.145.5.55
-ENV volumio_address 192.145.5.55
+ENV port=8343
+ENV avreceiver_address=192.145.5.55
+ENV subwoofer_address=192.145.5.55
+ENV volumio_address=192.145.5.55
 ENV stations name=url&name2=url2&...
 
 
