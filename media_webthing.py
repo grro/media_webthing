@@ -111,6 +111,7 @@ def parse_map(text: str) -> Dict[str, str]:
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(name)-20s: %(levelname)-8s %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     logging.getLogger('tornado.access').setLevel(logging.ERROR)
+    logging.getLogger('httpx').setLevel(logging.ERROR)
     logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
     run_server("description", int(sys.argv[1]), sys.argv[2], sys.argv[3],  sys.argv[4], parse_map(sys.argv[5]))
 

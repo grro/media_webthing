@@ -59,9 +59,9 @@ class Denon:
 
     def set_power(self, power: bool):
         if power:
-            asyncio.get_event_loop().run_until_complete(self.async_power_on())
+            asyncio.run(self.async_power_on())
         else:
-            asyncio.get_event_loop().run_until_complete(self.async_power_off())
+            asyncio.run(self.async_power_off())
 
     async def async_power_on(self):
         logging.info("setting power ON")
@@ -80,7 +80,7 @@ class Denon:
         return 80 + self.__vol
 
     def set_volume(self, volume: int):
-        asyncio.get_event_loop().run_until_complete(self.async_set_volume(volume - 80))
+        asyncio.run(self.async_set_volume(volume - 80))
 
     async def async_set_volume(self, volume: float):
         logging.info("setting volume " + str(volume))
@@ -115,7 +115,7 @@ class Denon:
             src = 'TV Audio'
         elif src == 'RADIO':
             src = 'Videocore'
-        asyncio.get_event_loop().run_until_complete(self.async_set_source(src))
+        asyncio.run(self.async_set_source(src))
 
     async def async_set_source(self, input: str):
         logging.info("setting source " + input)
@@ -131,9 +131,10 @@ class Denon:
 
 
 
-'''
 d = Denon("10.1.33.40")
 sleep(2)
+sleep(2)
+d.set_source('TV')
 d.set_power(True)
 print("")
 sleep(3)
@@ -146,10 +147,7 @@ sleep(2)
 d.set_volume(55)
 sleep(2)
 d.set_volume(40)
-sleep(2)
-d.set_source('TV')
 sleep(6)
 d.set_source('RADIO')
 
 sleep(77777)
-'''
