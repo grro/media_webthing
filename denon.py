@@ -50,8 +50,7 @@ class Denon:
             updated = True
         if updated:
             self.__notify_listener()
-            print(self)
-            print()
+            logging.debug(self.__str__())
 
     @property
     def power(self) -> bool:
@@ -129,25 +128,3 @@ class Denon:
     def __str__(self):
         return "Power:  " + str(self.power) + "\nsource: " + str(self.source) + "\nvolume: " + str(self.volume)
 
-
-
-d = Denon("10.1.33.40")
-sleep(2)
-sleep(2)
-d.set_source('TV')
-d.set_power(True)
-print("")
-sleep(3)
-d.set_volume(45)
-sleep(2)
-d.set_volume(34)
-sleep(2)
-d.set_volume(50)
-sleep(2)
-d.set_volume(55)
-sleep(2)
-d.set_volume(40)
-sleep(6)
-d.set_source('RADIO')
-
-sleep(77777)
