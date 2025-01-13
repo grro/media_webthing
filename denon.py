@@ -28,7 +28,7 @@ class Denon:
     def __listen(self):
         self.__fetch_state()
         while self.running:
-            sleep(2)
+            sleep(3)
             self.__fetch_state()
 
     def __fetch_state(self):
@@ -91,6 +91,7 @@ class Denon:
             return 'TV'
 
     def set_power(self, power: bool):
+        logging.info("setting power " + str(power))
         content = '''<?xml version="1.0" encoding="utf-8"?>
                              <tx>
                                <cmd id="1">SetPower</cmd>
@@ -102,22 +103,23 @@ class Denon:
         self.__fetch_state()
 
     def set_volume(self, volume: int):
-        vol = volume - 80
+        vol = volume - 80.0
+        logging.info("setting volume " + str(vol) + " (api: " + str(volume) + ")")
         resp = requests.get(self.addr + ":8080/goform/formiPhoneAppVolume.xml?1+" + str(vol))
         resp.raise_for_status()
         self.__fetch_state()
 
     def set_source(self, src: str):
-        if src == 'TV':
-            src = 'TV'
-        elif src == 'RADIO':
-            src = 'GAME1'
-
+        if src == 'RADIO':
+            input_func = 'GAME1'
+        else:
+            input_func = 'TV'
+        logging.info("setting source " + input_func + " (api: " + src + ")")
         content = '''<?xml version="1.0" encoding="utf-8"?>
                                      <tx>
                                        <cmd id="1">SetInputFunction</cmd>
                                        <zone>zone1</zone>
-                                       <value>''' + src + '''</value>
+                                       <value>''' + input_func + '''</value>
                                      </tx>'''
         resp = requests.post(self.addr + ":8080/goform/AppCommand.xml", headers={'Content-Type': 'application/xml', 'Accept': 'application/xml'},data=content)
         resp.raise_for_status()
