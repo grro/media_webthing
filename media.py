@@ -1,3 +1,5 @@
+import logging
+
 from denon import Denon
 from volumio import Volumio
 from subwoofer import Subwoofer
@@ -20,7 +22,9 @@ class Media:
 
     def _on_updated(self):
         if self.av_receiver.power:
-            self.subwoofer.set_power(True)
+            if self.subwoofer.power == False:
+                self.av_receiver.set_source('TV')
+                self.subwoofer.set_power(True)
         else:
             self.subwoofer.set_power(False)
         self.__notify_listener()
@@ -75,8 +79,10 @@ class Media:
         if source.upper() == 'OFF':
             self.set_power(False)
         elif source.upper() in {'TV', 'SAT', 'MEDIAPLAYER', 'BLUERAY', 'AUX2', 'TUNER', 'HEOS'}:
+            self.set_power(True)
             self.av_receiver.set_source(source)
         else:
+            self.set_power(True)
             station = source
             self.av_receiver.set_source('RADIO')
             self.tuner.play(station)
