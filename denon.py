@@ -28,35 +28,42 @@ class Denon:
     def __listen(self):
         self.__fetch_state()
         while self.running:
-            sleep(3)
-            self.__fetch_state()
+            try:
+                sleep(3)
+                self.__fetch_state()
+            except Exception as e:
+                logging.warning(str(e))
 
     def __fetch_state(self):
-        content = '''<?xml version="1.0" encoding="utf-8"?>
-                     <tx>
-                      <cmd id="1">GetAllZonePowerStatus</cmd>
-                      <cmd id="1">GetAllZoneVolume</cmd>
-                      <cmd id="1">GetAllZoneSource</cmd>
-                     </tx>'''
-        resp = requests.post(self.addr + ":8080/goform/AppCommand.xml", headers={'Content-Type': 'application/xml', 'Accept': 'application/xml'},data=content)
-        resp.raise_for_status()
+        url = self.addr + ":8080/goform/AppCommand.xml"
+        try:
+            content = '''<?xml version="1.0" encoding="utf-8"?>
+                         <tx>
+                          <cmd id="1">GetAllZonePowerStatus</cmd>
+                          <cmd id="1">GetAllZoneVolume</cmd>
+                          <cmd id="1">GetAllZoneSource</cmd>
+                         </tx>'''
+            resp = requests.post(url, headers={'Content-Type': 'application/xml', 'Accept': 'application/xml'},data=content)
+            resp.raise_for_status()
 
-        updated = False
-        current_power = xmltodict.parse(resp.text)['rx']['cmd'][0]['zone1']
-        if self.__pwr != current_power:
-            self.__pwr = current_power
-            updated = True
-        current_volume = float(xmltodict.parse(resp.text)['rx']['cmd'][1]['zone1']['volume'])
-        if self.__vol != current_volume:
-            self.__vol = current_volume
-            updated = True
-        current_source = xmltodict.parse(resp.text)['rx']['cmd'][2]['zone1']['source']
-        if self.__src != current_source:
-            self.__src = current_source
-            updated = True
-        if updated:
-            self.__notify_listener()
-            logging.info(self.__str__() + "\n")
+            updated = False
+            current_power = xmltodict.parse(resp.text)['rx']['cmd'][0]['zone1']
+            if self.__pwr != current_power:
+                self.__pwr = current_power
+                updated = True
+            current_volume = float(xmltodict.parse(resp.text)['rx']['cmd'][1]['zone1']['volume'])
+            if self.__vol != current_volume:
+                self.__vol = current_volume
+                updated = True
+            current_source = xmltodict.parse(resp.text)['rx']['cmd'][2]['zone1']['source']
+            if self.__src != current_source:
+                self.__src = current_source
+                updated = True
+            if updated:
+                self.__notify_listener()
+                logging.info(self.__str__() + "\n")
+        except Exception as e:
+            logging.warning("error occurred by calling " + url + "  " + str(e))
 
     @property
     def power(self) -> bool:
