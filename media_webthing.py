@@ -3,7 +3,7 @@ import logging
 import tornado.ioloop
 from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
 from media import Media
-from volumio import Volumio
+from moode import Moode
 from denon import Denon
 from subwoofer import Subwoofer
 from typing import Dict
@@ -78,6 +78,20 @@ class MediaThing(Thing):
                      }))
 
 
+        self.stationnames = Value(",".join(media.stationnames))
+        self.add_property(
+            Property(self,
+                     'stationnames',
+                     self.stationnames,
+                     metadata={
+                         'title': 'stationnames',
+                         "type": "string",
+                         'description': 'the comma-separated list of station names',
+                         'readOnly': False,
+                     }))
+
+
+
     def on_value_changed(self):
         self.ioloop.add_callback(self.__on_value_changed)
 
@@ -86,13 +100,14 @@ class MediaThing(Thing):
         self.source.notify_of_external_update(self.media.source)
         self.volume.notify_of_external_update(self.media.volume)
         self.status.notify_of_external_update(self.media.title)
+        self.stationnames.notify_of_external_update(",".join(self.media.stationnames))
 
 
-def run_server(description: str, port: int, avreceiver_address: str, subwoofer_address: str, volumio_address: str, stations: Dict[str, str]):
-    media = Media(Denon(avreceiver_address), Volumio(volumio_address, stations), Subwoofer(subwoofer_address))
+def run_server(description: str, port: int, avreceiver_address: str, subwoofer_address: str, tuner_address: str, stations: Dict[str, str]):
+    media = Media(Denon(avreceiver_address), Moode(tuner_address, stations), Subwoofer(subwoofer_address))
     server = WebThingServer(SingleThing(MediaThing(description, media)), port=port, disable_host_validation=True)
     try:
-        logging.info('starting the server http://localhost:' + str(port) + " (av receiver=" + avreceiver_address + "; subwoofer address=" + subwoofer_address + "; volumio device= " + volumio_address + ")")
+        logging.info('starting the server http://localhost:' + str(port) + " (av receiver=" + avreceiver_address + "; subwoofer address=" + subwoofer_address + "; tuner device= " + tuner_address + ")")
         server.start()
     except KeyboardInterrupt:
         logging.info('stopping the server')

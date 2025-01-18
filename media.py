@@ -1,5 +1,6 @@
+from typing import List
 from denon import Denon
-from volumio import Volumio
+from moode import Moode
 from subwoofer import Subwoofer
 
 
@@ -7,7 +8,7 @@ from subwoofer import Subwoofer
 
 class Media:
 
-    def __init__(self, av_receiver: Denon, tuner: Volumio, subwoofer: Subwoofer):
+    def __init__(self, av_receiver: Denon, tuner: Moode, subwoofer: Subwoofer):
         self.__listener = lambda: None
         self.subwoofer = subwoofer
         self.tuner = tuner
@@ -46,9 +47,13 @@ class Media:
     def volume(self) -> int:
         return self.av_receiver.volume
 
-    async def set_volume(self, volume: int):
+    def set_volume(self, volume: int):
         self.av_receiver.set_volume(volume)
         self.__notify_listener()
+
+    @property
+    def stationnames(self) -> List[str]:
+        return sorted(self.tuner.stationnames)
 
     @property
     def title(self) -> str:
