@@ -64,6 +64,7 @@ class Moode:
 
     def stop(self):
         self.__title = ''
+        self.__send_command('clear')
         self.__send_command("stop")
         self.playing = False
         self.__notify_listener()
