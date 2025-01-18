@@ -79,11 +79,9 @@ class Denon:
             return 'TV'
         elif self.__src == 'CBL/SAT':
             return 'SAT'
-        elif self.__src == 'Media Player':
-            return 'MEDIAPLAYER'
         elif self.__src == 'Blu-ray':
             return 'BLUERAY'
-        elif self.__src == 'Videocore':
+        elif self.__src == 'MPLAY':
             return 'RADIO'
         elif self.__src == 'GAME1':
             return 'GAME1'
@@ -108,6 +106,7 @@ class Denon:
         resp = requests.post(self.addr + ":8080/goform/AppCommand.xml", headers={'Content-Type': 'application/xml', 'Accept': 'application/xml'},data=content)
         resp.raise_for_status()
         self.__fetch_state()
+        self.__notify_listener()
 
     def set_volume(self, volume: int):
         vol = volume - 80.0
@@ -115,10 +114,11 @@ class Denon:
         resp = requests.get(self.addr + ":8080/goform/formiPhoneAppVolume.xml?1+" + str(vol))
         resp.raise_for_status()
         self.__fetch_state()
+        self.__notify_listener()
 
     def set_source(self, src: str):
         if src == 'RADIO':
-            input_func = 'GAME1'
+            input_func = 'MPLAY'
         else:
             input_func = 'TV'
         logging.info("setting source " + input_func + " (api: " + src + ")")
@@ -131,6 +131,7 @@ class Denon:
         resp = requests.post(self.addr + ":8080/goform/AppCommand.xml", headers={'Content-Type': 'application/xml', 'Accept': 'application/xml'},data=content)
         resp.raise_for_status()
         self.__fetch_state()
+        self.__notify_listener()
 
     def __repr__(self):
         return self.__str__()
