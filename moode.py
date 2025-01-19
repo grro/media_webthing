@@ -79,7 +79,6 @@ class Moode:
                         title = entry[len("Title"):].strip()
                         if title != self.__title:
                             self.__title = title
-                            logging.info("title: " + title)
                             self.__notify_listener()
 
                 resp = self.__send_command('status')
