@@ -105,7 +105,8 @@ class WebOSTv:
                     self.__audio = audio
                     self.__notify_listener()
             except Exception as e:
-                logging.debug("Error in read TV (" + self.ip_address + ") " + str(e))
+                logging.debug("Error in read TV state (" + self.ip_address + ") " + str(e))
+                self.__try_reconnect()
 
     def __receive_loop(self):
         while self.running:
