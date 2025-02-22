@@ -46,11 +46,7 @@ class WebOSTv:
         with open(self.store_file, 'wb') as f:
             pickle.dump(store, f)
 
-    @property
-    def connected(self) -> bool:
-        return self.client is not None
-
-    def __reconnect(self):
+    def __try_reconnect(self):
         # disconnect if connected
         if self.client is not None:
             logging.info("TV (" + self.ip_address + ") disconnected")
@@ -93,7 +89,7 @@ class WebOSTv:
                 logging.info("set audio output = TV (" + new_audio + ")")
             else:
                 new_audio = 'external_arc'
-                logging.info("set audio output = ARC(" + new_audio + ")")
+                logging.info("set audio output = ARC (" + new_audio + ")")
             media = MediaControl(self.client)
             media.set_audio_output(AudioOutputSource(new_audio))
             self.__read()
@@ -101,18 +97,21 @@ class WebOSTv:
 
     def __read(self):
         if self.client is not None:
-            media = MediaControl(self.client)
-            audio = media.get_audio_output().data
-            if audio != self.__audio:
-                logging.info("audio updated to " + audio)
-                self.__audio = audio
-                self.__notify_listener()
+            try:
+                media = MediaControl(self.client)
+                audio = media.get_audio_output().data
+                if audio != self.__audio:
+                    logging.info("audio updated to " + audio)
+                    self.__audio = audio
+                    self.__notify_listener()
+            except Exception as e:
+                logging.debug("Error in read TV (" + self.ip_address + ") " + str(e))
 
     def __receive_loop(self):
         while self.running:
             try:
                 if self.client is None:
-                    self.__reconnect()
+                    self.__try_reconnect()
                 self.__read()
                 sleep(3)
             except Exception as e:

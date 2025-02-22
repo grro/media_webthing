@@ -137,5 +137,5 @@ class Denon:
         return self.__str__()
 
     def __str__(self):
-        return "Power:  " + str(self.power) + "\nsource: " + str(self.source) + "\nvolume: " + str(self.volume)
+        return "Power:  " + str(self.power) + "; source: " + str(self.source) + "; volume: " + str(self.volume)
 
