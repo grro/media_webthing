@@ -68,7 +68,7 @@ class WebOSTv:
 
         except Exception as e:
             self.client = None
-            logging.error("Error in reconnect TV (" + self.ip_address + ") " + str(e))
+            logging.info("Error in reconnect TV (" + self.ip_address + ") " + str(e))
 
     @property
     def audio(self):
@@ -84,10 +84,10 @@ class WebOSTv:
             logging.info("setting audio = " + output)
             if output.lower() == TV:
                 new_audio = 'tv_speaker'
-                logging.info("setting audio = TV (" + new_audio + ")")
+                logging.info("set audio output = TV (" + new_audio + ")")
             else:
                 new_audio = 'external_arc'
-                logging.info("setting audio = ARC(" + new_audio + ")")
+                logging.info("set audio output = ARC(" + new_audio + ")")
             media = MediaControl(self.client)
             media.set_audio_output(AudioOutputSource(new_audio))
             self.__read()
