@@ -49,10 +49,10 @@ class WebOSTv:
     def __try_reconnect(self):
         # disconnect if connected
         if self.client is not None:
-            logging.info("TV (" + self.ip_address + ") disconnected")
             try:
                 self.client.close()
             finally:
+                logging.info("TV (" + self.ip_address + ") disconnected")
                 self.client = None
 
         # try to connect
