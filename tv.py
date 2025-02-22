@@ -109,6 +109,8 @@ class WebOSTv:
                 self.__try_reconnect()
 
     def __receive_loop(self):
+        self.__try_reconnect()
+
         while self.running:
             try:
                 if self.client is None:
