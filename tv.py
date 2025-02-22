@@ -51,24 +51,30 @@ class WebOSTv:
         return self.client is not None
 
     def __reconnect(self):
+        # disconnect if connected
         if self.client is not None:
-            self.client.close()
-            self.client = None
+            logging.info("TV (" + self.ip_address + ") disconnected")
+            try:
+                self.client.close()
+            finally:
+                self.client = None
 
+        # try to connect
         try:
-            self.client = WebOSClient(self.ip_address)
-            self.client.connect()
-
-            store = self.__load_store()
-            for status in self.client.register(store):
-                if status == WebOSClient.PROMPTED:
-                    logging.info("Please accept the connect on the TV!")
-            self.__save_store(store)
+            self.client = self.__new_connection()
             logging.info("Tv (" + self.ip_address + ") connected ")
-
         except Exception as e:
-            self.client = None
-            logging.info("Error in reconnect TV (" + self.ip_address + ") " + str(e))
+            logging.debug("Error in connect TV (" + self.ip_address + ") " + str(e))
+
+    def __new_connection(self):
+        new_client = WebOSClient(self.ip_address)
+        new_client.connect()
+        store = self.__load_store()
+        for status in new_client.register(store):
+            if status == WebOSClient.PROMPTED:
+                logging.info("Please accept the connect on the TV!")
+        self.__save_store(store)
+        return new_client
 
     @property
     def audio(self):
