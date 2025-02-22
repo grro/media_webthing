@@ -113,10 +113,11 @@ class WebOSTv:
 
         while self.running:
             try:
+                sleep(3)
                 if self.client is None:
+                    sleep(10)
                     self.__try_reconnect()
                 self.__read()
-                sleep(3)
             except Exception as e:
                 logging.error("Error in receive loop: " + str(e))
                 sleep(5)
