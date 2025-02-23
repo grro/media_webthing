@@ -80,20 +80,24 @@ class WebOSTv:
             return TV
 
     def set_audio(self, output: str):
-        if self.client is None:
-            raise Exception("TV (" + self.ip_address + ") not connected")
-        else:
-            logging.info("setting audio = " + output)
-            if output.lower() == TV:
-                new_audio = 'tv_speaker'
-                logging.info("set audio output = TV (" + new_audio + ")")
+        try:
+            if self.client is None:
+                logging.info("TV (" + self.ip_address + ") not connected")
             else:
-                new_audio = 'external_arc'
-                logging.info("set audio output = ARC (" + new_audio + ")")
-            media = MediaControl(self.client)
-            media.set_audio_output(AudioOutputSource(new_audio))
-            self.__read()
-            self.__notify_listener()
+                logging.info("setting audio = " + output)
+                if output.lower() == TV:
+                    new_audio = 'tv_speaker'
+                    logging.info("set audio output = TV (" + new_audio + ")")
+                else:
+                    new_audio = 'external_arc'
+                    logging.info("set audio output = ARC (" + new_audio + ")")
+                media = MediaControl(self.client)
+                media.set_audio_output(AudioOutputSource(new_audio))
+                self.__read()
+                self.__notify_listener()
+        except Exception as e:
+            logging.debug("Error in read TV state (" + self.ip_address + ") " + str(e))
+            self.__try_reconnect()
 
     def __read(self):
         if self.client is not None:
