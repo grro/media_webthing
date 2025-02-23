@@ -82,7 +82,7 @@ class WebOSTv:
     def set_audio(self, output: str):
         try:
             if self.client is None:
-                logging.info("TV (" + self.ip_address + ") not connected")
+                logging.debug("TV (" + self.ip_address + ") not connected")
             else:
                 logging.info("setting audio = " + output)
                 if output.lower() == TV:
