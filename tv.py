@@ -59,6 +59,8 @@ class WebOSTv:
         try:
             self.client = self.__new_connection()
             logging.info("Tv (" + self.ip_address + ") connected ")
+            self.set_audio(ARC)
+
         except Exception as e:
             logging.debug("Error in connect TV (" + self.ip_address + ") " + str(e))
 

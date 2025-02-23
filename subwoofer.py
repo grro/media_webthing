@@ -32,7 +32,7 @@ class ShellyPlus1:
                 power = 0
                 return on, power
             except Exception as e:
-                raise Exception("called " + uri + " got " + str(resp.status_code) + " " + resp.text + " " + str(e))
+                raise Exception("Subwoofer called " + uri + " got " + str(resp.status_code) + " " + resp.text + " " + str(e))
         except Exception as e:
             self.__renew_session()
             raise e
@@ -48,7 +48,7 @@ class ShellyPlus1:
             raise Exception("called " + uri + " got " + str(e))
 
     def __renew_session(self):
-        logging.info("renew session")
+        logging.info("Subwoofer renew session")
         try:
             self.__session.close()
         except Exception as e:
