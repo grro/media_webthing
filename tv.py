@@ -21,7 +21,7 @@ class WebOSTv:
         if not os.path.exists(dir):
             os.makedirs(dir)
         self.store_file = os.path.join(dir, 'tv.pkl')
-        logging.info("using store file " + self.store_file)
+        logging.info("TV using store file " + self.store_file)
         self.client = None
         self.__audio = ''
         Thread(target=self.__receive_loop, daemon=True).start()
@@ -84,13 +84,12 @@ class WebOSTv:
             if self.client is None:
                 logging.debug("TV (" + self.ip_address + ") not connected")
             else:
-                logging.info("setting audio = " + output)
                 if output.lower() == TV:
                     new_audio = 'tv_speaker'
-                    logging.info("set audio output = TV (" + new_audio + ")")
+                    logging.info("TV set audio output = " + new_audio)
                 else:
                     new_audio = 'external_arc'
-                    logging.info("set audio output = ARC (" + new_audio + ")")
+                    logging.info("TV set audio output = " + new_audio)
                 media = MediaControl(self.client)
                 media.set_audio_output(AudioOutputSource(new_audio))
                 self.__read()
@@ -123,6 +122,6 @@ class WebOSTv:
                     self.__try_reconnect()
                 self.__read()
             except Exception as e:
-                logging.error("Error in receive loop: " + str(e))
+                logging.error("Error in TV receive loop: " + str(e))
                 sleep(5)
 

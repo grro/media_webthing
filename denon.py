@@ -63,7 +63,7 @@ class Denon:
                 self.__notify_listener()
                 logging.info(self.__str__() + "\n")
         except Exception as e:
-            logging.warning("error occurred by calling " + url + "  " + str(e))
+            logging.warning("AV receiver error occurred by calling " + url + "  " + str(e))
 
     @property
     def power(self) -> bool:
@@ -92,7 +92,7 @@ class Denon:
         elif self.__src == 'HEOS Music':
             return 'HEOS'
         else:
-            logging.warning("unknown source: " + self.__src)
+            logging.warning("AV receiver unknown source: " + self.__src)
             return 'TV'
 
     def set_power(self, power: bool):
@@ -110,7 +110,7 @@ class Denon:
 
     def set_volume(self, volume: int):
         vol = volume - 80.0
-        logging.info("setting volume " + str(vol) + " (api: " + str(volume) + ")")
+        logging.info("AV receiver setting volume " + str(vol) + " (api: " + str(volume) + ")")
         resp = requests.get(self.addr + ":8080/goform/formiPhoneAppVolume.xml?1+" + str(vol))
         resp.raise_for_status()
         self.__fetch_state()
@@ -121,7 +121,7 @@ class Denon:
             input_func = 'MPLAY'
         else:
             input_func = 'TV'
-        logging.info("setting source " + input_func + " (api: " + src + ")")
+        logging.info("AV receiver setting source " + input_func + " (api: " + src + ")")
         content = '''<?xml version="1.0" encoding="utf-8"?>
                                      <tx>
                                        <cmd id="1">SetInputFunction</cmd>
