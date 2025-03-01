@@ -57,6 +57,7 @@ class WebOSTv:
 
         # try to connect
         try:
+            logging.info("try re-connected")
             self.client = self.__new_connection()
             logging.info("Tv (" + self.ip_address + ") connected ")
             self.set_audio(ARC)
