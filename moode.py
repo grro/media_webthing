@@ -49,7 +49,7 @@ class Moode:
 
     def play(self, stationname: str):
         stationname = stationname.strip().upper()
-        self.__title = 'Moode loading ' + stationname + "..."
+        self.__title = 'loading ' + stationname + "..."
         uri = self.__stations.get(stationname, '')
         if uri == '':
             logging.warning("Moode unknown station '" + stationname + "' (supported: " + ", ".join(["'" + name + "'" for name in self.stationnames]) + ")")

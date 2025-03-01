@@ -59,7 +59,6 @@ class WebOSTv:
 
         # try to connect
         try:
-            logging.info("try re-connected")
             self.client = self.__new_connection()
             logging.info("Tv (" + self.ip_address + ") connected ")
             self.set_audio(ARC)
@@ -88,7 +87,7 @@ class WebOSTv:
         try:
             if self.client is None:
                 self.__try_reconnect()
-                logging.debug("TV (" + self.ip_address + ") not connected")
+
 
             if output.lower() == TV:
                 new_audio = 'tv_speaker'
@@ -105,7 +104,7 @@ class WebOSTv:
             self.__try_reconnect()
 
     def __read(self):
-        if self.client is not None:
+        if self.client is None:
             try:
                 media = MediaControl(self.client)
                 audio = media.get_audio_output().data
@@ -124,8 +123,9 @@ class WebOSTv:
             try:
                 sleep(3)
                 if self.client is None:
-                    sleep(10)
+                    sleep(5)
                     self.__try_reconnect()
+
                 self.__read()
             except Exception as e:
                 logging.error("Error in TV receive loop: " + str(e))
