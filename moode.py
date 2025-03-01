@@ -92,6 +92,7 @@ class Moode:
                             self.__notify_listener()
             except Exception as e:
                 logging.warning(str(e))
+
             for i in range(0, 10):
                 sleep(1)
                 if self.playing:

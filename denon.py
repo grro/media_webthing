@@ -29,7 +29,7 @@ class Denon:
         self.__fetch_state()
         while self.running:
             try:
-                sleep(3)
+                sleep(4)
                 self.__fetch_state()
             except Exception as e:
                 logging.warning(str(e))

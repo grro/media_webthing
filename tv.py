@@ -88,7 +88,6 @@ class WebOSTv:
             if self.client is None:
                 self.__try_reconnect()
 
-
             if output.lower() == TV:
                 new_audio = 'tv_speaker'
                 logging.info("TV set audio output = " + new_audio)
@@ -113,7 +112,6 @@ class WebOSTv:
                     self.__audio = audio
                     self.__notify_listener()
             except Exception as e:
-                logging.debug("Error in read TV state (" + self.ip_address + ") " + str(e))
                 self.__try_reconnect()
 
     def __receive_loop(self):
