@@ -8,7 +8,8 @@ from denon import Denon
 from tv import WebOSTv
 from subwoofer import Subwoofer
 from typing import Dict
-
+from media_mcp import MediaMCPServer
+from media_web import MediaWebServer
 
 
 
@@ -113,12 +114,18 @@ def run_server(description: str,
                stations: Dict[str, str],
                store_dir: str):
     media = Media(Denon(avreceiver_address), Moode(tuner_address, stations), WebOSTv(tv_address, store_dir), Subwoofer(subwoofer_address))
+    web_server = MediaWebServer(media, port + 1)
+    mcp_server = MediaMCPServer("Media", port + 2, media)
     server = WebThingServer(SingleThing(MediaThing(description, media)), port=port, disable_host_validation=True)
     try:
         logging.info('starting the server http://localhost:' + str(port) + " (av receiver=" + avreceiver_address + "; subwoofer address=" + subwoofer_address + "; tuner device= " + tuner_address + ")")
+        mcp_server.start()
+        web_server.start()
         server.start()
     except KeyboardInterrupt:
         logging.info('stopping the server')
+        web_server.stop()
+        mcp_server.stop()
         server.stop()
         media.stop()
         logging.info('done')

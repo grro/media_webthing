@@ -3,4 +3,5 @@ redzoo>=0.3.7
 webthing>=0.15.0
 xmltodict>=0.14.2
 pywebostv==0.8.9
+mcp>=0.18.0
 
