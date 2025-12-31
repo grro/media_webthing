@@ -20,7 +20,6 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
         # Strip leading slash to get the endpoint name (e.g., "power")
         path = parsed_url.path.lstrip("/")
 
-        # Handler for Power commands
         if path == 'power':
             query_params = parse_qs(parsed_url.query)
             if 'on' in query_params:
@@ -30,7 +29,6 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
             # Always return current full state as JSON
             self._send_json(200, self._get_media_state(media))
 
-        # Handler for Volume commands
         elif path == 'volume':
             query_params = parse_qs(parsed_url.query)
             if 'level' in query_params:
@@ -38,7 +36,6 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
                 media.set_volume(level)
             self._send_json(200, self._get_media_state(media))
 
-        # Handler for Source/Input switching
         elif path == 'source':
             query_params = parse_qs(parsed_url.query)
             if 'name' in query_params:
@@ -47,8 +44,10 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
                 media.set_source(name)
             self._send_json(200, self._get_media_state(media))
 
-        # Handler for Title/Metadata info
         elif path == 'title':
+            self._send_json(200, self._get_media_state(media))
+
+        else:
             self._send_json(200, self._get_media_state(media))
 
     def _get_media_state(self, media: Media) -> Dict[str, Any]:
@@ -76,6 +75,7 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/plain; charset=utf-8")
         self.end_headers()
         self.wfile.write(data.encode("utf-8"))
+
 
 class MediaWebServer:
     def __init__(self, media: Media,  host='0.0.0.0', port=8000):
