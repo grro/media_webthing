@@ -114,8 +114,8 @@ def run_server(description: str,
                stations: Dict[str, str],
                store_dir: str):
     media = Media(Denon(avreceiver_address), Moode(tuner_address, stations), WebOSTv(tv_address, store_dir), Subwoofer(subwoofer_address))
-    web_server = MediaWebServer(media, port + 1)
-    mcp_server = MediaMCPServer("Media", port + 2, media)
+    web_server = MediaWebServer(media, port=port+1)
+    mcp_server = MediaMCPServer("Media", port=port+2, media=media)
     server = WebThingServer(SingleThing(MediaThing(description, media)), port=port, disable_host_validation=True)
     try:
         logging.info('starting the server http://localhost:' + str(port) + " (av receiver=" + avreceiver_address + "; subwoofer address=" + subwoofer_address + "; tuner device= " + tuner_address + ")")
