@@ -9,9 +9,9 @@ from typing import List, Dict, Any
 
 class SimpleRequestHandler(BaseHTTPRequestHandler):
 
-    def log_message(self, format, *args):
-        # suppress access logging
-        pass
+    #def log_message(self, format, *args):
+    #    # suppress access logging
+    #    pass
 
     def do_GET(self):
         # Access the media instance shared via the server object
