@@ -148,17 +148,20 @@ class WebOSTv:
         except Exception as e:
             logging.getLogger('tv').warning("Error in read TV state (" + self.ip_address + ") " + str(e))
 
-    def __read(self):
+    def __read(self) -> bool:
         if self.client is None:
-            try:
-                media = MediaControl(self.client)
-                audio = media.get_audio_output().data
-                if audio != self.__audio:
-                    logging.info("audio updated to " + audio)
-                    self.__audio = audio
-                    self.__notify_listener()
-            except Exception as e:
-                self.__try_reconnect()
+            self.__try_reconnect()
+
+        try:
+            media = MediaControl(self.client)
+            audio = media.get_audio_output().data
+            if audio != self.__audio:
+                logging.info("audio updated to " + audio)
+                self.__audio = audio
+                self.__notify_listener()
+            return True
+        except Exception as e:
+            return False
 
     def __receive_loop(self):
         self.__try_reconnect()
