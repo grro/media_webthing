@@ -78,7 +78,7 @@ class WebOSTv:
         with open(self.store_file, 'wb') as f:
             pickle.dump(store, f)
 
-    def __try_reconnect(self) -> bool:
+    def __try_reconnect(self, reason: str = "") -> bool:
         # disconnect if connected
         try:
             if self.client is not None:
@@ -91,7 +91,7 @@ class WebOSTv:
 
         # try to connect
         try:
-            logging.getLogger('tv').debug("Tv (" + self.ip_address + ") connecting...")
+            logging.getLogger('tv').debug("Tv (" + self.ip_address + ") connecting... (reason: " + reason + ")")
             self.client = self.__new_connection()
             logging.getLogger('tv').debug("Tv (" + self.ip_address + ") connected ")
             self.set_audio(ARC)
@@ -131,7 +131,7 @@ class WebOSTv:
         logging.getLogger('tv').debug("setting TV audio output to " + output)
         try:
             if self.client is None:
-                self.__try_reconnect()
+                self.__try_reconnect(reason="set audio")
 
             if output.lower() == TV:
                 new_audio = 'tv_speaker'
@@ -150,7 +150,7 @@ class WebOSTv:
 
     def __read(self) -> bool:
         if self.client is None:
-            self.__try_reconnect()
+            self.__try_reconnect(reason="read state")
 
         try:
             media = MediaControl(self.client)
@@ -164,13 +164,13 @@ class WebOSTv:
             return False
 
     def __receive_loop(self):
-        self.__try_reconnect()
+        self.__try_reconnect("receive loop start")
 
         while self.running:
             try:
                 sleep(3)
                 if self.client is None:
-                    if not self.__try_reconnect():
+                    if not self.__try_reconnect("receive loop reconnect"):
                         sleep(63)
 
                 self.__read()
