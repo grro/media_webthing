@@ -63,11 +63,13 @@ class Moode:
         self.__notify_listener()
 
     def stop(self):
+        logging.getLogger('tuner').debug("stopping playback")
         self.__title = ''
         self.__send_command('clear')
         self.__send_command("stop")
         self.playing = False
         self.__notify_listener()
+        logging.getLogger('tuner').debug("stopped playback")
 
     def __update_state_loop(self):
         while True:

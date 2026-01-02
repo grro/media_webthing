@@ -29,7 +29,7 @@ class Denon:
         self.__fetch_state()
         while self.running:
             try:
-                sleep(4)
+                sleep(14)
                 self.__fetch_state()
             except Exception as e:
                 logging.warning(str(e))
@@ -96,7 +96,7 @@ class Denon:
             return 'TV'
 
     def set_power(self, power: bool):
-        logging.info("setting power " + str(power))
+        logging.getLogger('denon').info("setting power " + str(power))
         content = '''<?xml version="1.0" encoding="utf-8"?>
                              <tx>
                                <cmd id="1">SetPower</cmd>
@@ -105,8 +105,10 @@ class Denon:
                              </tx>'''
         resp = requests.post(self.addr + ":8080/goform/AppCommand.xml", headers={'Content-Type': 'application/xml', 'Accept': 'application/xml'},data=content)
         resp.raise_for_status()
+        logging.getLogger('denon').debug("fetching updated state")
         self.__fetch_state()
         self.__notify_listener()
+        logging.getLogger('denon').debug("set power done")
 
     def set_volume(self, volume: int):
         vol = volume - 80.0
@@ -117,6 +119,7 @@ class Denon:
         self.__notify_listener()
 
     def set_source(self, src: str):
+        logging.getLogger('denon').debug("setting source " + src)
         if src == 'RADIO':
             input_func = 'MPLAY'
         else:
@@ -130,8 +133,10 @@ class Denon:
                                      </tx>'''
         resp = requests.post(self.addr + ":8080/goform/AppCommand.xml", headers={'Content-Type': 'application/xml', 'Accept': 'application/xml'},data=content)
         resp.raise_for_status()
+        logging.getLogger('denon').debug("fetching updated state")
         self.__fetch_state()
         self.__notify_listener()
+        logging.getLogger('denon').debug("set source done")
 
     def __repr__(self):
         return self.__str__()

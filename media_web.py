@@ -1,10 +1,11 @@
 import json
 import threading
 import logging
+from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from media import Media
-from typing import List, Dict, Any
+from typing import Dict, Any
 
 
 class SimpleRequestHandler(BaseHTTPRequestHandler):
@@ -26,15 +27,14 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
                 # Convert string param to boolean and update hardware
                 is_on = query_params['on'][0].lower() == 'true'
                 media.set_power(is_on)
-            # Always return current full state as JSON
-            self._send_json(200, self._get_media_state(media))
+            self._send_json(200, {"success": 'True'})
 
         elif path == 'volume':
             query_params = parse_qs(parsed_url.query)
             if 'level' in query_params:
                 level = int(query_params['level'][0])
                 media.set_volume(level)
-            self._send_json(200, self._get_media_state(media))
+            self._send_json(200, {"success": 'True'})
 
         elif path == 'source':
             query_params = parse_qs(parsed_url.query)
@@ -42,10 +42,10 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
                 # Assuming the media object expects a source identifier
                 name = query_params['name'][0]
                 media.set_source(name)
-            self._send_json(200, self._get_media_state(media))
+            self._send_json(200, {"success": 'True'})
 
         elif path == 'title':
-            self._send_json(200, self._get_media_state(media))
+            self._send_json(200, {"success": 'True'})
 
         else:
             self._send_json(200, self._get_media_state(media))
@@ -56,7 +56,8 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
             'power': 'true' if media.power else 'false',
             'level': media.volume,
             'source': media.source,
-            'title': media.title
+            'title': media.title,
+            'date': datetime.now().isoformat(),
         }
     def _send_html(self, status, message):
         self.send_response(status)

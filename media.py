@@ -24,7 +24,7 @@ class Media:
     def _on_updated(self):
         if self.av_receiver.power:
             self.subwoofer.set_power(True)
-            self.tv.set_audio(ARC)
+            self.tv.set_audio_async(ARC)
         else:
             self.subwoofer.set_power(False)
         self.__notify_listener()

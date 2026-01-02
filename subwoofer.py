@@ -38,11 +38,13 @@ class ShellyPlus1:
             raise e
 
     def switch(self, on: bool):
+        logging.getLogger('subwoofer').debug("setting subwoofer " + ('on' if on else 'off'))
         uri = self.addr + '/rpc/Switch.Set?id=0&on=' + ('true' if on else 'false')
         try:
             resp = self.__session.get(uri, timeout=10)
             if resp.status_code != 200:
                 raise Exception("called " + uri + " got " + str(resp.status_code) + " " + resp.text)
+            logging.getLogger('subwoofer').debug("setting subwoofer " + ('on' if on else 'off') + " done")
         except Exception as e:
             self.__renew_session()
             raise Exception("called " + uri + " got " + str(e))
