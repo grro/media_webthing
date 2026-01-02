@@ -78,7 +78,7 @@ class WebOSTv:
         with open(self.store_file, 'wb') as f:
             pickle.dump(store, f)
 
-    def __try_reconnect(self):
+    def __try_reconnect(self) -> bool:
         # disconnect if connected
         try:
             if self.client is not None:
@@ -95,6 +95,7 @@ class WebOSTv:
             self.client = self.__new_connection()
             logging.getLogger('tv').debug("Tv (" + self.ip_address + ") connected ")
             self.set_audio(ARC)
+            return True
 
         except Exception as e:
             logging.debug("Error in connect TV (" + self.ip_address + ") " + str(e))
@@ -104,6 +105,7 @@ class WebOSTv:
                 pass
             finally:
                 self.client = None
+        return False
 
     def __new_connection(self):
         new_client = WebOSClient(self.ip_address)
@@ -165,11 +167,11 @@ class WebOSTv:
             try:
                 sleep(3)
                 if self.client is None:
-                    sleep(37)
-                    self.__try_reconnect()
+                    if not self.__try_reconnect():
+                        sleep(63)
 
                 self.__read()
             except Exception as e:
                 logging.error("Error in TV receive loop: " + str(e))
-                sleep(5)
+                sleep(7)
 
