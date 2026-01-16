@@ -1,49 +1,58 @@
 from mcp_server import MCPServer
 from media import Media
 
-
 class MediaMCPServer(MCPServer):
 
-    def __init__(self, name: str, port: int, media : Media):
+    def __init__(self, name: str, port: int, media: Media):
         super().__init__(name, port)
         self.media = media
 
-        @self.mcp.tool(name="get_media_title", description="Returns the title of the currently playing media.")
+        @self.mcp.tool(name="get_media_title", description="Retrieves the title of the track or program currently playing. Returns 'Unknown' if nothing is playing.")
         def get_media_title() -> str:
-            return self.media.title
+            return self.media.title or "Unknown"
 
-        @self.mcp.tool(name="get_media_source", description="Returns the current input source (e.g., 'TUNER', 'TV').")
+        @self.mcp.tool(name="get_media_source", description="Gets the currently active input source (e.g., 'TUNER', 'TV', 'HDMI').")
         def get_media_source() -> str:
             return self.media.source
 
-        @self.mcp.tool(name="get_media_volume", description="Returns the current system volume level.")
+        @self.mcp.tool(name="get_media_volume", description="Gets the current volume level as an integer from 0 (mute) to 100 (max volume).")
         def get_media_volume() -> int:
             return self.media.volume
 
-        @self.mcp.tool(name="get_media_power_status", description="Checks if the device is powered on.")
+        @self.mcp.tool(name="get_media_power_status", description="Checks if the device is turned on. Returns True if on, False if standby/off.")
         def get_media_power_status() -> bool:
             return self.media.power == 1
 
-        @self.mcp.tool(name="set_media_source", description="Changes the active input source.")
-        def set_media_source(source: str):
+        @self.mcp.tool(name="set_media_source", description="Switches the input source. Ensure the device is powered on before switching.")
+        def set_media_source(source: str) -> str:
             """
-            :param source: The name of the source to switch to.
+            :param source: The target source. Common values: 'TUNER', 'TV', 'HDMI1', 'HDMI2'.
             """
+            valid_sources = ["TUNER", "TV", "HDMI1", "HDMI2"]
+
+            if source not in valid_sources:
+                return f"Error: '{source}' is not valid. Allowed: {valid_sources}"
+
             self.media.set_source(source)
+            return f"Successfully switched source to '{source}'"
 
-        @self.mcp.tool(name="set_media_volume", description="Updates the device volume.")
-        def set_media_volume(vol: int):
+        @self.mcp.tool(name="set_media_volume", description="Sets the absolute volume level. Range is 0 to 100.")
+        def set_media_volume(volume_level: int) -> str:
             """
-            :param vol: Integer value representing the target volume level.
+            :param volume_level: Target volume (0-100).
             """
-            self.media.set_volume(vol)
+            if not (0 <= volume_level <= 100):
+                return "Error: Volume must be between 0 (mute) and 100 (max volume)."
 
-        @self.mcp.tool(name="set_media_power", description="Controls the power state of the media device.")
-        def set_media_power(on: bool):
-            """
-            :param on: Set to True to power on, False to power off.
-            """
-            self.media.set_power(on)
+            self.media.set_volume(volume_level)
+            return f"Volume set to {volume_level}"
 
-# npx @modelcontextprotocol/inspector
+        @self.mcp.tool(name="set_media_power", description="Turns the device on or off.")
+        def set_media_power(turn_on: bool) -> str:
+            """
+            :param turn_on: True to turn ON, False to turn OFF.
+            """
+            self.media.set_power(turn_on)
+            state = "ON" if turn_on else "OFF"
+            return f"Device powered {state}"
 
