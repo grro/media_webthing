@@ -18,8 +18,10 @@ class MediaMCPServer(MCPServer):
         def get_media_title() -> str:
             return self.media.title or "Unknown"
 
-        @self.mcp.tool(name="get_media_source", description="Gets the currently active input source (e.g., 'TUNER', 'TV', 'HDMI').")
+        @self.mcp.tool(name="get_media_source", description="Gets the currently active input source. If the source is 'TUNER', it returns the name of the currently playing radio station.")
         def get_media_source() -> str:
+            if self.media.source == "TUNER":
+                return self.media.title or "TUNER"
             return self.media.source
 
         @self.mcp.tool(name="get_media_volume", description="Gets the current volume level as an integer from 0 (mute) to 100 (max volume).")
