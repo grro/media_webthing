@@ -7,6 +7,13 @@ class MediaMCPServer(MCPServer):
         super().__init__(name, port)
         self.media = media
 
+        @self.mcp.tool(name="get_station_names", description="Retrieves the names of available radio stations as a comma-separated string. Use these names as valid inputs for 'set_media_source'.")
+        def get_station_names() -> str:
+            stations = self.media.stationnames
+            if isinstance(stations, list):
+                return ", ".join(stations)
+            return str(stations)
+
         @self.mcp.tool(name="get_media_title", description="Retrieves the title of the track or program currently playing. Returns 'Unknown' if nothing is playing.")
         def get_media_title() -> str:
             return self.media.title or "Unknown"
@@ -23,15 +30,17 @@ class MediaMCPServer(MCPServer):
         def get_media_power_status() -> bool:
             return self.media.power == 1
 
-        @self.mcp.tool(name="set_media_source", description="Switches the input source. Ensure the device is powered on before switching.")
+        @self.mcp.tool(name="set_media_source", description="Switches the input source or selects a radio station. Ensure the device is powered on.")
         def set_media_source(source: str) -> str:
             """
-            :param source: The target source. Common values: 'TUNER', 'TV', 'HDMI1', 'HDMI2'.
+            :param source: The target source. Can be a fixed input ('TUNER', 'TV', 'HDMI1', 'HDMI2') OR a valid station name.
             """
-            valid_sources = ["TUNER", "TV", "HDMI1", "HDMI2"]
+            fixed_inputs = ["TUNER", "TV", "HDMI1", "HDMI2"]
 
-            if source not in valid_sources:
-                return f"Error: '{source}' is not valid. Allowed: {valid_sources}"
+            available_stations = self.media.stationnames if isinstance(self.media.stationnames, list) else []
+
+            if source not in fixed_inputs and source not in available_stations:
+                return f"Error: '{source}' is invalid. Allowed inputs: {fixed_inputs} OR available stations."
 
             self.media.set_source(source)
             return f"Successfully switched source to '{source}'"
@@ -55,4 +64,3 @@ class MediaMCPServer(MCPServer):
             self.media.set_power(turn_on)
             state = "ON" if turn_on else "OFF"
             return f"Device powered {state}"
-
