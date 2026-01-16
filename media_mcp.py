@@ -8,46 +8,39 @@ class MediaMCPServer(MCPServer):
         super().__init__(name, port)
         self.media = media
 
-        @self.mcp.resource("media://title")
-        def get_title() -> str:
-            """Returns the title of the currently playing media."""
+        @self.mcp.tool(name="get_media_title", description="Returns the title of the currently playing media.")
+        def get_media_title() -> str:
             return self.media.title
 
-        @self.mcp.resource("media://source")
-        def get_source() -> str:
-            """Returns the current input source (e.g., 'TUNER', 'TV')."""
+        @self.mcp.tool(name="get_media_source", description="Returns the current input source (e.g., 'TUNER', 'TV').")
+        def get_media_source() -> str:
             return self.media.source
 
-        @self.mcp.resource("media://volume")
-        def get_volume() -> int:
-            """Returns the current system volume level."""
+        @self.mcp.tool(name="get_media_volume", description="Returns the current system volume level.")
+        def get_media_volume() -> int:
             return self.media.volume
 
-        @self.mcp.resource("media://power")
-        def get_power() -> bool:
-            """Checks if the device is powered on ."""
+        @self.mcp.tool(name="get_media_power_status", description="Checks if the device is powered on.")
+        def get_media_power_status() -> bool:
             return self.media.power == 1
 
-        @self.mcp.tool()
-        def set_source(source: str):
+        @self.mcp.tool(name="set_media_source", description="Changes the active input source.")
+        def set_media_source(source: str):
             """
-            Changes the active input source.
             :param source: The name of the source to switch to.
             """
             self.media.set_source(source)
 
-        @self.mcp.tool()
-        def set_volume(vol: int):
+        @self.mcp.tool(name="set_media_volume", description="Updates the device volume.")
+        def set_media_volume(vol: int):
             """
-            Updates the device volume.
             :param vol: Integer value representing the target volume level.
             """
             self.media.set_volume(vol)
 
-        @self.mcp.tool()
-        def set_power(on: bool):
+        @self.mcp.tool(name="set_media_power", description="Controls the power state of the media device.")
+        def set_media_power(on: bool):
             """
-            Controls the power state of the media device.
             :param on: Set to True to power on, False to power off.
             """
             self.media.set_power(on)
