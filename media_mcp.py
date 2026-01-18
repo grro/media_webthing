@@ -1,68 +1,78 @@
+import logging
 from mcplib.server import MCPServer
 from media import Media
 
+
 class MediaMCPServer(MCPServer):
+    """
+    MCP Server for controlling a media player or AV receiver.
+    Provides volume control, source switching, and radio station management.
+    """
 
     def __init__(self, name: str, port: int, media: Media):
         super().__init__(name, port)
         self.media = media
+        # Define fixed inputs once to ensure consistency
+        self._fixed_inputs = ["TV", "SAT", "MEDIAPLAYER", "BLUERAY", "AUX2", "TUNER", "HEOS"]
 
-        @self.mcp.tool(name="get_station_names", description="Retrieves the names of available radio stations as a comma-separated string. Use these names as valid inputs for 'set_media_source'.")
-        def get_station_names() -> str:
-            stations = self.media.stationnames
-            if isinstance(stations, list):
-                return ", ".join(stations)
-            return str(stations)
+        @self.mcp.tool(name="get_media_status",
+                       description="Returns the full status of the media device including power, volume, source, and available stations.")
+        def get_media_status() -> str:
+            """
+            Provides a comprehensive snapshot of the device state.
+            Use this to check what is playing and what options are available.
+            """
+            try:
+                power_state = "ON" if self.media.power == 1 else "OFF/STANDBY"
+                volume = self.media.volume
+                current_source = self.media.source
+                current_title = self.media.title or "None"
 
-        @self.mcp.tool(name="get_media_title", description="Retrieves the title of the track or program currently playing. Returns 'Unknown' if nothing is playing.")
-        def get_media_title() -> str:
-            return self.media.title or "Unknown"
+                stations = self.media.stationnames
+                stations_str = ", ".join(stations) if isinstance(stations, list) else str(stations)
 
-        @self.mcp.tool(name="get_media_source", description="Gets the currently active input source. If the source is 'TUNER', it returns the name of the currently playing radio station.")
-        def get_media_source() -> str:
-            if self.media.source == "TUNER":
-                return self.media.title or "TUNER"
-            return self.media.source
+                return (
+                    f"Media Player Status ({power_state}):\n"
+                    f"- Source: {current_source}\n"
+                    f"- Current Title/Station: {current_title}\n"
+                    f"- Volume: {volume}/100\n"
+                    f"- Available Radio Stations: {stations_str}\n"
+                    f"- Valid Fixed Inputs: {', '.join(self._fixed_inputs)}"
+                )
+            except Exception as e:
+                logging.warning(f"Failed to get media status: {e}", exc_info=True)
+                return f"Error: Could not retrieve media status. {str(e)}"
 
-        @self.mcp.tool(name="get_media_volume", description="Gets the current volume level as an integer from 0 (mute) to 100 (max volume).")
-        def get_media_volume() -> int:
-            return self.media.volume
-
-        @self.mcp.tool(name="get_media_power_status", description="Checks if the device is turned on. Returns True if on, False if standby/off.")
-        def get_media_power_status() -> bool:
-            return self.media.power == 1
-
-        @self.mcp.tool(name="set_media_source", description="Switches the input source or selects a radio station. Ensure the device is powered on.")
+        @self.mcp.tool(name="set_media_source",
+                       description="Switches the input source or selects a radio station (e.g., 'TV' or 'SWR1').")
         def set_media_source(source: str) -> str:
             """
-            :param source: The target source. Can be a fixed input ('TUNER', 'TV', 'HDMI1', 'HDMI2') OR a valid station name.
+            Changes the active input. Device must be powered ON.
+            Args:
+                source: Target input name or radio station name.
             """
-            fixed_inputs = ["TUNER", "TV", "HDMI1", "HDMI2"]
+            try:
+                available_stations = self.media.stationnames if isinstance(self.media.stationnames, list) else []
 
-            available_stations = self.media.stationnames if isinstance(self.media.stationnames, list) else []
+                if source not in self._fixed_inputs and source not in available_stations:
+                    return f"Error: '{source}' is invalid. Use a fixed input {self._fixed_inputs} OR a station from the status report."
 
-            if source not in fixed_inputs and source not in available_stations:
-                return f"Error: '{source}' is invalid. Allowed inputs: {fixed_inputs} OR available stations."
+                self.media.set_source(source)
+                return f"Successfully switched source to '{source}'"
+            except Exception as e:
+                return f"Error: Failed to set source to '{source}'. {str(e)}"
 
-            self.media.set_source(source)
-            return f"Successfully switched source to '{source}'"
-
-        @self.mcp.tool(name="set_media_volume", description="Sets the absolute volume level. Range is 0 to 100.")
+        @self.mcp.tool(name="set_media_volume",
+                       description="Sets the absolute volume (0-100).")
         def set_media_volume(volume_level: int) -> str:
-            """
-            :param volume_level: Target volume (0-100).
-            """
             if not (0 <= volume_level <= 100):
-                return "Error: Volume must be between 0 (mute) and 100 (max volume)."
-
+                return "Error: Volume must be between 0 and 100."
             self.media.set_volume(volume_level)
-            return f"Volume set to {volume_level}"
+            return f"Success: Volume adjusted to {volume_level}."
 
-        @self.mcp.tool(name="set_media_power", description="Turns the device on or off.")
+        @self.mcp.tool(name="set_media_power",
+                       description="Turns the device ON or OFF (Standby).")
         def set_media_power(turn_on: bool) -> str:
-            """
-            :param turn_on: True to turn ON, False to turn OFF.
-            """
             self.media.set_power(turn_on)
             state = "ON" if turn_on else "OFF"
-            return f"Device powered {state}"
+            return f"Success: Device is now {state}."
